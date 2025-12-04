@@ -1,0 +1,277 @@
+diff --git a/node_modules/react-native-collapsible-tab-view/src/Container.tsx b/node_modules/react-native-collapsible-tab-view/src/Container.tsx
+index e782b90..249d7f1 100644
+--- a/node_modules/react-native-collapsible-tab-view/src/Container.tsx
++++ b/node_modules/react-native-collapsible-tab-view/src/Container.tsx
+@@ -1,37 +1,31 @@
+ import React from 'react'
+ import { StyleSheet, useWindowDimensions, View } from 'react-native'
++import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+ import PagerView from 'react-native-pager-view'
+ import Animated, {
++  cancelAnimation,
++  Extrapolation,
++  interpolate,
++  ReduceMotion,
+   runOnJS,
+   runOnUI,
+   useAnimatedReaction,
+   useAnimatedStyle,
+   useDerivedValue,
++  useFrameCallback,
+   useSharedValue,
++  withDecay,
+   withDelay,
+   withTiming,
+-  useFrameCallback,
+ } from 'react-native-reanimated'
+ 
+ import { Context, TabNameContext } from './Context'
++import { IS_IOS, ONE_FRAME_MS, scrollToImpl } from './helpers'
++import { useAnimatedDynamicRefs, useContainerRef, useLayoutHeight, usePageScrollHandler, useTabProps } from './hooks'
+ import { Lazy } from './Lazy'
+ import { MaterialTabBar, TABBAR_HEIGHT } from './MaterialTabBar'
+ import { Tab } from './Tab'
+-import { IS_IOS, ONE_FRAME_MS, scrollToImpl } from './helpers'
+-import {
+-  useAnimatedDynamicRefs,
+-  useContainerRef,
+-  usePageScrollHandler,
+-  useTabProps,
+-  useLayoutHeight,
+-} from './hooks'
+-import {
+-  CollapsibleProps,
+-  CollapsibleRef,
+-  ContextType,
+-  IndexChangeEventData,
+-  TabName,
+-} from './types'
++import { CollapsibleProps, CollapsibleRef, ContextType, IndexChangeEventData, TabName } from './types'
+ 
+ const AnimatedPagerView = Animated.createAnimatedComponent(PagerView)
+ 
+@@ -124,6 +118,11 @@ export const Container = React.memo(
+         Object.fromEntries(tabNamesArray.map((n) => [n, 0]))
+       )
+ 
++      const isSlidingTopContainerValue = useSharedValue(false)
++      const isSlidingTopContainerPrevValue = useSharedValue(false)
++      const isTopContainerOutOfSyncValue = useSharedValue(false)
++      const panScrollYValue = useSharedValue(0)
++
+       const contentHeights: ContextType['contentHeights'] = useSharedValue(
+         tabNamesArray.map(() => 0)
+       )
+@@ -255,8 +254,8 @@ export const Container = React.memo(
+             if (
+               typeof scrollY.value[tabNames.value[index.value]] === 'number'
+             ) {
+-              scrollYCurrent.value =
+-                scrollY.value[tabNames.value[index.value]] || 0
++                scrollYCurrent.value =
++                  scrollY.value[tabNames.value[index.value]] || 0
+             }
+             runOnJS(toggleSyncScrollFrame)(true)
+           }
+@@ -349,6 +348,59 @@ export const Container = React.memo(
+         [onTabPress]
+       )
+ 
++      const pan = Gesture.Pan().activeOffsetY([ -10, 10 ])
++      pan.onStart(() => {
++        'worklet'
++        cancelAnimation(scrollYCurrent)
++      })
++      pan.onUpdate((e) => {
++        'worklet'
++        if (!isSlidingTopContainerValue.value) {
++          panScrollYValue.value = scrollYCurrent.value
++          isSlidingTopContainerValue.value = true
++          return
++        }
++        scrollYCurrent.value = interpolate(
++          -e.translationY + panScrollYValue.value,
++          [ 0, headerScrollDistance.value ],
++          [ 0, headerScrollDistance.value ],
++          Extrapolation.CLAMP,
++        )
++      })
++      pan.onEnd((e) => {
++        'worklet'
++        if (!isSlidingTopContainerValue.value) {
++          return
++        }
++        panScrollYValue.value = 0
++        scrollYCurrent.value = withDecay({
++          velocity: -e.velocityY,
++          clamp: [ 0, headerScrollDistance.value ],
++          deceleration: IS_IOS ? 0.998 : 0.99,
++        }, (finished) => {
++          isSlidingTopContainerValue.value = false
++          isTopContainerOutOfSyncValue.value = !!finished
++        })
++      })
++
++      useAnimatedReaction(() => scrollYCurrent.value - contentInset, (next, prev) => {
++        if (next !== prev && isSlidingTopContainerValue.value) {
++          resyncTabScroll()
++        }
++      })
++
++      useAnimatedReaction(() => {
++        return isSlidingTopContainerValue.value !== isSlidingTopContainerPrevValue.value
++          && isTopContainerOutOfSyncValue.value
++      }, (res) => {
++        isSlidingTopContainerPrevValue.value = isSlidingTopContainerValue.value
++        if (!res || isSlidingTopContainerValue.value) {
++          return
++        }
++        resyncTabScroll()
++        isTopContainerOutOfSyncValue.value = false
++      })
++
+       return (
+         <Context.Provider
+           value={{
+@@ -377,6 +429,7 @@ export const Container = React.memo(
+             headerTranslateY,
+             width,
+             allowHeaderOverscroll,
++            isSlidingTopContainerValue,
+           }}
+         >
+           <Animated.View
+@@ -384,48 +437,50 @@ export const Container = React.memo(
+             onLayout={getContainerLayoutHeight}
+             pointerEvents="box-none"
+           >
+-            <Animated.View
+-              pointerEvents="box-none"
+-              style={[
+-                styles.topContainer,
+-                headerContainerStyle,
+-                !cancelTranslation && stylez,
+-              ]}
+-            >
+-              <View
+-                style={[styles.container, styles.headerContainer]}
+-                onLayout={getHeaderHeight}
+-                pointerEvents="box-none"
+-              >
+-                {renderHeader &&
+-                  renderHeader({
+-                    containerRef,
+-                    index,
+-                    tabNames: tabNamesArray,
+-                    focusedTab,
+-                    indexDecimal,
+-                    onTabPress,
+-                    tabProps,
+-                  })}
+-              </View>
+-              <View
+-                style={[styles.container, styles.tabBarContainer]}
+-                onLayout={getTabBarHeight}
++            <GestureDetector gesture={pan}>
++              <Animated.View
++                 pointerEvents="box-none"
++                style={[
++                  styles.topContainer,
++                  headerContainerStyle,
++                  !cancelTranslation && stylez,
++                ]}
++              >
++                <View
++                  style={[styles.container, styles.headerContainer]}
++                  onLayout={getHeaderHeight}
++                  pointerEvents="box-none"
++                >
++                  {renderHeader &&
++                    renderHeader({
++                      containerRef,
++                      index,
++                      tabNames: tabNamesArray,
++                      focusedTab,
++                      indexDecimal,
++                      onTabPress,
++                      tabProps,
++                    })}
++                </View>
++                <View
++                  style={[styles.container, styles.tabBarContainer]}
++                  onLayout={getTabBarHeight}
++                  pointerEvents="box-none"
++                >
++                  {renderTabBar &&
++                    renderTabBar({
++                      containerRef,
++                      index,
++                      tabNames: tabNamesArray,
++                      focusedTab,
++                      indexDecimal,
++                      width,
++                      onTabPress,
++                      tabProps,
++                    })}
++                </View>
++              </Animated.View>
++            </GestureDetector>
+ 
+             <AnimatedPagerView
+               ref={containerRef}
+diff --git a/node_modules/react-native-collapsible-tab-view/src/hooks.tsx b/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
+index ba7dffa..bb50a1c 100644
+--- a/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
++++ b/node_modules/react-native-collapsible-tab-view/src/hooks.tsx
+@@ -269,6 +269,7 @@ export const useScrollHandlerY = (name: TabName) => {
+     contentHeights,
+     indexDecimal,
+     allowHeaderOverscroll,
++    isSlidingTopContainerValue,
+   } = useTabsContext()
+ 
+   const enabled = useSharedValue(false)
+@@ -372,17 +373,21 @@ export const useScrollHandlerY = (name: TabName) => {
+             const clampMax =
+               contentHeight - (containerHeight || 0) + contentInset
+             // make sure the y value is clamped to the scrollable size (clamps overscrolling)
+-            scrollYCurrent.value = allowHeaderOverscroll
+-              ? y
+-              : interpolate(
++            if (!isSlidingTopContainerValue.value) {
++              scrollYCurrent.value = allowHeaderOverscroll
++                ? y
++                : interpolate(
+                   y,
+-                  [0, clampMax],
+-                  [0, clampMax],
++                  [ 0, clampMax ],
++                  [ 0, clampMax ],
+                   Extrapolation.CLAMP
+                 )
++            }
+           } else {
+             const { y } = event.contentOffset
+-            scrollYCurrent.value = y
++            if (!isSlidingTopContainerValue.value) {
++              scrollYCurrent.value = y
++            }
+           }
+ 
+           scrollY.value[name] = scrollYCurrent.value
+diff --git a/node_modules/react-native-collapsible-tab-view/src/types.ts b/node_modules/react-native-collapsible-tab-view/src/types.ts
+index 00fbafc..eb887db 100644
+--- a/node_modules/react-native-collapsible-tab-view/src/types.ts
++++ b/node_modules/react-native-collapsible-tab-view/src/types.ts
+@@ -222,7 +222,9 @@ export type ContextType<T extends TabName = TabName> = {
+    */
+   allowHeaderOverscroll?: boolean
+ 
+-  minHeaderHeight: number
++  minHeaderHeight: number,
++
++  isSlidingTopContainerValue: SharedValue<boolean>,
+ }
+ 
+ export type ScrollViewProps = ComponentProps<typeof Animated.ScrollView>
+
