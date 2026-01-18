@@ -17,3 +17,5 @@ export * from './register';
 export * from './register.types';
 export * from './verification';
 export * from './verification.types';
+export * from './forgot-password';
+export * from './forgot-password.types';

@@ -24,6 +24,7 @@ import Reanimated from 'react-native-reanimated';
 export interface BoxProps extends ViewProps {
   ref?: React.Ref<View>;
   as?: React.ReactElement;
+  gap?: number;
   height?: number | string | ResponsiveValue<number | string>;
   width?: number | string | ResponsiveValue<number | string>;
   padding?: PaddingType | number;
@@ -56,6 +57,7 @@ export const Box = React.memo((props: BoxProps) => {
     backgroundColor,
     zIndex,
     ref,
+    gap,
     ...rest
   } = props;
 
@@ -117,9 +119,10 @@ export const Box = React.memo((props: BoxProps) => {
       zIndex,
       width: resolvedWidth,
       height: resolvedHeight,
+      gap,
       backgroundColor,
-      borderCurve: borderRadius ? 'continuous' : undefined,
-    };
+      borderCurve: borderRadius ? ('continuous' as const) : undefined,
+    } as ViewStyle;
   }, [
     resolvedWidth,
     resolvedHeight,
@@ -131,27 +134,51 @@ export const Box = React.memo((props: BoxProps) => {
     borderRadius,
     zIndex,
     backgroundColor,
+    gap,
   ]);
 
   if (as) {
-    if (typeof as?.props.style === 'function') {
-      return React.cloneElement(as, {
+    // `as` is possibly a React.ReactElement, but its type is unknown.
+    // To safely access its props, we need to assert its type.
+    if (!React.isValidElement(as)) {
+      return null;
+    }
+    const element = as as React.ReactElement<any>;
+    const asProps = (element.props || {}) as any;
+    if (typeof asProps.style === 'function') {
+      return React.cloneElement(element, {
         ref,
-        style: (state: any) => [boxStyle, as?.props.style(state), style],
+        style: (state: any) => {
+          const functionStyleArray = [boxStyle, asProps.style(state)];
+          if (style) {
+            functionStyleArray.push(style);
+          }
+          return functionStyleArray;
+        },
         ...rest,
-      });
+      } as any);
     }
 
-    return React.cloneElement(as, {
-      ref,
-      style: [boxStyle, style, as.props.style],
-      ...rest,
-    });
+    const styleArray: ViewStyle[] = [boxStyle];
+    if (style) {
+      styleArray.push(style as ViewStyle);
+    }
+    if (asProps.style) {
+      styleArray.push(asProps.style as ViewStyle);
+    }
+
+    return React.cloneElement(
+      element,
+      {
+        ref,
+        style: styleArray,
+        ...rest,
+      } as any
+    );
   }
   return (
     <View
       ref={ref}
-      removeClippedSubviews
       style={[boxStyle as ViewStyle, style]}
       {...rest}
     />

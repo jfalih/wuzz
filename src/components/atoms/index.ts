@@ -6,3 +6,6 @@ export * from './button';
 export * from './bottom-sheet';
 export * from './icon';
 export * from './progress';
+export * from './gesture-pressable';
+export * from './input';
+export { default as MarkerPin } from './marker-pin';

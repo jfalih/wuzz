@@ -36,7 +36,7 @@ export const ChangeLanguageModal = memo(props => {
         {...val}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
-        style={[val.style, { backgroundColor: 'rgba(255,255,255,0.4)' }]}
+        style={[val?.style, { backgroundColor: 'rgba(255,255,255,0.4)' }].filter(Boolean)}
         enableTouchThrough
       />
     ),
@@ -94,7 +94,7 @@ export const ChangeLanguageModal = memo(props => {
   const ListHeaderComponent = useMemo(() => {
     return (
       <VStack
-        backgroundColor={theme.pallate.neutral['05']}
+        backgroundColor={theme.pallate.neutral['06']}
         padding={20}
         spacing={20}
       >
@@ -156,7 +156,7 @@ export const ChangeLanguageModal = memo(props => {
       enablePanDownToClose
       topInset={top + theme.spacing.standard}
       keyboardBehavior="interactive"
-      backgroundStyle={{ backgroundColor: theme.pallate.neutral['05'] }}
+      backgroundStyle={{ backgroundColor: theme.pallate.neutral['06'] }}
       handleIndicatorStyle={{ backgroundColor: theme.pallate.neutral['03'] }}
       backdropComponent={renderBackdrop}
     >

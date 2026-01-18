@@ -1,4 +1,4 @@
-import {Platform} from 'react-native';
+import { Platform } from 'react-native';
 
 const spacing = {
   tiny: 4,
@@ -468,23 +468,24 @@ export const theme = {
     primary: {
       '01': '#FFFFFF',
       '02': '#ECFFA1',
-      '03': '#00A6FF',
+      '03': '#E0FF63',
       '04': '#d9fa52',
       '05': '#AED900',
     },
     secondary: {
-    '01': '#D7C4FF', // Lightest tint
-    '02': '#B592FF', // Lighter tint
-    '03': '#894AFF', // Base
-    '04': '#6C26E6', // Darker shade
-    '05': '#5010B3', // Darkest shade
-  },
+      '01': '#D7C4FF', // Lightest tint
+      '02': '#B592FF', // Lighter tint
+      '03': '#894AFF', // Base
+      '04': '#6C26E6', // Darker shade
+      '05': '#5010B3', // Darkest shade
+    },
     neutral: {
       '01': '#FFFFFF',
-      '02': '#F2F2F2',
-      '03': '#EEEEEE',
-      '04': '#B2B2B2',
-      '05': '#000000',
+      '02': '#999999',
+      '03': '#555555',
+      '04': '#222222',
+      '05': '#171717',
+      '06': '#000000',
     },
     warning: {
       '01': '#444444',
@@ -516,12 +517,12 @@ export const theme = {
   spacing,
 };
 
-export const navigationTheme : ReactNavigation.Theme = {
+export const navigationTheme: ReactNavigation.Theme = {
   dark: false,
   colors: {
     primary: theme.pallate.primary['03'],
-    background: theme.pallate.neutral['01'],
-    card: theme.pallate.neutral['04'],
+    background: theme.pallate.neutral['06'],
+    card: theme.pallate.neutral['01'],
     text: theme.pallate.neutral['01'],
     border: theme.pallate.neutral['03'],
     notification: theme.pallate.neutral['03'],

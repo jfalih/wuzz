@@ -69,7 +69,7 @@ export const OtpModal = memo((props: OTPModalProps) => {
   const ListHeaderComponent = useMemo(() => {
     return (
       <VStack
-        backgroundColor={theme.pallate.neutral['05']}
+        backgroundColor={theme.pallate.neutral['06']}
         padding={theme.spacing.large}
       >
         <VStack fill>
@@ -94,7 +94,7 @@ export const OtpModal = memo((props: OTPModalProps) => {
       ref={ref}
       topInset={top + theme.spacing.standard}
       keyboardBehavior="interactive"
-      backgroundStyle={{ backgroundColor: theme.pallate.neutral['05'] }}
+      backgroundStyle={{ backgroundColor: theme.pallate.neutral['06'] }}
       handleIndicatorStyle={{ backgroundColor: theme.pallate.neutral['03'] }}
       backdropComponent={renderBackdrop}
     >

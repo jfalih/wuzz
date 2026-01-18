@@ -52,6 +52,9 @@ export const TextStyleWeight = StyleSheet.create({
     fontFamily: 'Poppins-BoldItalic',
     fontStyle: 'italic',
   },
+  creative: {
+    fontFamily: 'CherryBombOne-Regular',
+  },
 });
 
 export const createTextMarginStyle = (margin?: TextMarginType) => {

@@ -17,6 +17,7 @@ module.exports = {
           '@hooks': './src/services/hooks',
           '@navigation': './src/navigation',
           '@services': './src/services',
+          '@utils': './src/utils',
           '@assets': './public/assets',
           '@icons' : './public/icons',
           '@fonts': './public/fonts',

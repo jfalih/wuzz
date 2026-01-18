@@ -1,15 +1,14 @@
 import React, { Ref } from 'react';
 import {
-  Pressable as RNPressable,
-  PressableProps as RNPressableProps,
   View,
   ViewStyle,
 } from 'react-native';
 import { StackProps } from '../layouts/stack/stack.types';
 import { Stack } from '../layouts';
 import Reanimated from 'react-native-reanimated';
+import { Pressable as GesturePressable, PressableProps as GesturePressableProps } from 'react-native-gesture-handler';
 
-type PressableContainer = Omit<StackProps, 'as'> & RNPressableProps;
+type PressableContainer = Omit<StackProps, 'as'> & GesturePressableProps;
 
 export interface PressableProps extends PressableContainer {
   ref?: Ref<View>;
@@ -37,7 +36,7 @@ export const Pressable: React.FC<PressableProps> = React.memo(props => {
       direction="row"
       style={containerStyle}
       as={
-        <RNPressable
+        <GesturePressable
           android_disableSound={androidDisableSound}
           android_ripple={androidRipple}
           style={({ pressed }) => [

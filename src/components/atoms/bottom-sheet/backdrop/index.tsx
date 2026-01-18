@@ -9,7 +9,7 @@ export const BottomSheetBackdrop = memo(
       {...props}
       disappearsOnIndex={-1}
       appearsOnIndex={0}
-      style={[props.style, styles.bottomSheetBackdrop]}
+      style={[props?.style, styles.bottomSheetBackdrop].filter(Boolean)}
       enableTouchThrough
 
     />

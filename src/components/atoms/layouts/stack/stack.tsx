@@ -3,6 +3,7 @@ import Divider from '../divider';
 import { getValidChildren } from '../helper';
 import { StackProps } from './stack.types';
 import Flex from '../flex';
+import Animated from 'react-native-reanimated';
 
 export const Stack = memo(
   ({ divider = false, dividerStyle, spacing, ref, ...rest }: StackProps) => {
@@ -32,7 +33,10 @@ export const Stack = memo(
 
       const clonedDivider = React.cloneElement(dividerElement, {
         key: `${key}-divider`,
-        style: [dividerElement.props.style, dividerStyle],
+        style: [
+          dividerElement.props?.style,
+          dividerStyle,
+        ].filter(Boolean),
       });
 
       const _divider = isLast ? null : clonedDivider;
@@ -52,5 +56,8 @@ export const Stack = memo(
   },
 );
 
+const AnimatedStack = Animated.createAnimatedComponent(Stack);
+AnimatedStack.displayName = 'AnimatedStack';
+export { AnimatedStack };
 Stack.displayName = 'Stack';
 export default Stack;

@@ -2,18 +2,35 @@ import { Category } from '@core/api/category.types';
 
 export type BottomNavigationParamList = {
   home: undefined;
-  history: undefined;
+  timeline: undefined;
+  'clip-list': undefined;
+  profile: undefined;
 };
 
 export type RootStackParamList = {
   bottom: undefined;
+
+  // (clip) group
+  'clip-detail': undefined;
+
+  // (user) group
+  'user-detail': undefined;
+
+  // (auth) group
   checkout: undefined;
   walkthrough: undefined;
+  outletlist: undefined;
   // (auth) group
   login: undefined;
   onboarding: undefined;
-  verification: any;
+  verification: {
+    phone?: number;
+    countryCode?: number;
+    email?: string;
+    type?: 'sms' | 'call' | 'whatsapp';
+  };
   register: undefined;
+  'forgot-password': undefined;
 
   // (bottom) group
   activity: undefined;
@@ -51,6 +68,11 @@ export type RootStackParamList = {
   notification: undefined;
   spot: undefined;
   stats: undefined;
+
+  // Sheets / modals
+  'news-popup': {
+    item: any;
+  };
 
   survey: undefined;
   webview: {

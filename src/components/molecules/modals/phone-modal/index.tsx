@@ -37,7 +37,7 @@ export const PhoneModal = memo((props: PhoneModalProps) => {
           {...val}
           disappearsOnIndex={-1}
           appearsOnIndex={0}
-          style={[val.style, {backgroundColor: 'rgba(255,255,255,0.4)'}]}
+          style={[val?.style, {backgroundColor: 'rgba(255,255,255,0.4)'}].filter(Boolean)}
           enableTouchThrough
         />
       ),
@@ -70,7 +70,7 @@ export const PhoneModal = memo((props: PhoneModalProps) => {
     const ListHeaderComponent = useCallback(() => {
       return (
         <VStack
-          backgroundColor={theme.pallate.neutral['05']}
+          backgroundColor={theme.pallate.neutral['06']}
           padding={{
             paddingHorizontal: theme.spacing.large,
             paddingTop: theme.spacing.large,
@@ -127,7 +127,7 @@ export const PhoneModal = memo((props: PhoneModalProps) => {
         enablePanDownToClose
         topInset={top + theme.spacing.standard}
         keyboardBehavior="interactive"
-        backgroundStyle={{backgroundColor: theme.pallate.neutral['05']}}
+        backgroundStyle={{backgroundColor: theme.pallate.neutral['06']}}
         handleIndicatorStyle={{backgroundColor: theme.pallate.neutral['03']}}
         backdropComponent={renderBackdrop}
         enableDynamicSizing={false}

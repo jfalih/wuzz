@@ -1,2 +1,2 @@
 export * from './root';
-export * from './bottom';
+export * from './swipe-navigation';

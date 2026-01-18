@@ -1,8 +1,8 @@
 import { ApiResponse } from '@http/response';
 
 export type LoginBodyDTO = {
-    phone: number;
-    countryCode: number;
+    username: string;
+    password: string;
 };
 
 interface DeviceLoginDTO {
@@ -17,8 +17,22 @@ interface DeviceLoginDTO {
     deleted_at?: string,
 }
 
+interface LoginUserDTO {
+    id: number;
+    username: string;
+    full_name: string;
+    phone: number;
+    countryCode: number;
+    birth_date: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export type LoginResponseDTO  = ApiResponse<{
     device: DeviceLoginDTO,
+    user: LoginUserDTO,
+    accessToken: string,
+    refreshToken: string,
     verified: boolean,
     survey: boolean,
 }>;

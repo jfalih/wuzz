@@ -79,7 +79,7 @@ export const SocialMediaModal = memo((props: SocialMediaModalProps) => {
   const ListHeaderComponent = useMemo(() => {
     return (
       <VStack
-        backgroundColor={theme.pallate.neutral['05']}
+        backgroundColor={theme.pallate.neutral['06']}
         borderWidth={{
           borderBottomWidth: 1,
         }}
@@ -108,7 +108,7 @@ export const SocialMediaModal = memo((props: SocialMediaModalProps) => {
       enablePanDownToClose
       topInset={top + theme.spacing.standard}
       keyboardBehavior="interactive"
-      backgroundStyle={{ backgroundColor: theme.pallate.neutral['05'] }}
+      backgroundStyle={{ backgroundColor: theme.pallate.neutral['06'] }}
       handleIndicatorStyle={{ backgroundColor: theme.pallate.neutral['03'] }}
       backdropComponent={renderBackdrop}
     >

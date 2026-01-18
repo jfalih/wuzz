@@ -2,7 +2,6 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Platform } from 'react-native';
 import { getBrand, getDeviceName, getUniqueId } from 'react-native-device-info';
 import { NetworkInfo } from 'react-native-network-info';
-import i18n from '../../../i18n';
 import { ACCESS_TOKEN_STORAGE, REFRESH_TOKEN_STORAGE, storage } from './storage';
 import authUrl from './url';
 
@@ -31,7 +30,6 @@ baseRequest.interceptors.request.use(
       config.headers.DeviceName = deviceName;
       config.headers.DeviceModel = Platform.OS;
       config.headers.IPAddress = ipAddress;
-      config.headers.LanguageCode = i18n.language;
     }
 
     if (authToken) {

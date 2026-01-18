@@ -1,18 +1,35 @@
 import { ApiResponse, ErrorResponse } from '@http/response';
 
 export type ChannelTypeDTO = 'sms' | 'call' | 'whatsapp';
+export type VerificationMethod = 'phone' | 'email';
 
-export type SendVerificationBodyDTO = {
-    phone: number;
-    countryCode: number;
-    type: ChannelTypeDTO;
-};
+export type SendVerificationBodyDTO = 
+  | {
+      phone: number;
+      countryCode: number;
+      type: ChannelTypeDTO;
+      email?: never;
+    }
+  | {
+      email: string;
+      phone?: never;
+      countryCode?: never;
+      type?: never;
+    };
 
-export type CheckVerificationBodyDTO = {
-    phone: number;
-    countryCode: number;
-    code: string;
-};
+export type CheckVerificationBodyDTO = 
+  | {
+      phone: number;
+      countryCode: number;
+      code: string;
+      email?: never;
+    }
+  | {
+      email: string;
+      code: string;
+      phone?: never;
+      countryCode?: never;
+    };
 
 export type VerificationPinCheckBodyDTO = {
     phone: number;
